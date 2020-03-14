@@ -3,6 +3,7 @@ package com.ecommerce.microcommerce.web.controller;
 import com.ecommerce.microcommerce.dao.ProductDao;
 import com.ecommerce.microcommerce.model.Product;
 import com.ecommerce.microcommerce.model.ProductAdmin;
+import com.ecommerce.microcommerce.web.exceptions.ProduitGratuitException;
 import com.ecommerce.microcommerce.web.exceptions.ProduitIntrouvableException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -65,14 +66,19 @@ public class ProductController {
 
     //ajouter un produit
     @PostMapping(value = "/Produits")
-
     public ResponseEntity<Void> ajouterProduit(@Valid @RequestBody Product product) {
+
+        if (product.getPrix()==0){
+            throw new ProduitGratuitException("Les produits que vous ajoutez ne peuvent pas être vendu gratuitement.");
+        }
 
         Product productAdded =  productDao.save(product);
 
         if (productAdded == null) {
             return ResponseEntity.noContent().build();
         }
+
+
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -91,6 +97,10 @@ public class ProductController {
 
     @PutMapping (value = "/Produits")
     public void updateProduit(@RequestBody Product product) {
+        if (product.getPrix()==0){
+            throw new ProduitGratuitException("Les produits que vous modifiez ne peuvent pas être vendu gratuitement.");
+        }
+
         productDao.save(product);
     }
 
@@ -116,13 +126,11 @@ public class ProductController {
     @GetMapping(value = "/ProduitsOrder")
     public List<Product> trierProduitsParOrdreAlphabetique(){
         return productDao.findAllByOrderByNom();
-
     }
 
 
     private int  calculerMargeProduit(Product product){
         return  product.getPrix()-product.getPrixAchat();
-
     }
 
 
