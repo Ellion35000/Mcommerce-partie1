@@ -111,8 +111,15 @@ public class ProductController {
             listProduitAdmin.add(productAdmin);
         }
         return listProduitAdmin;
+    }
+
+    @GetMapping(value = "/ProduitsOrder")
+    public List<Product> trierProduitsParOrdreAlphabetique(){
+        return productDao.findAllByOrderByNom();
 
     }
+
+
     private int  calculerMargeProduit(Product product){
         return  product.getPrix()-product.getPrixAchat();
 
